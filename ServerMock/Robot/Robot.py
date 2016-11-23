@@ -30,7 +30,7 @@ class Robot:
         for part in self.__parts:
             parts["parts"].append(part.as_json())
 
-        return json.dumps(parts)
+        return json.dumps(parts, indent=4)
 
     def do_with_part(self, id, type, action):
         id = int(id)

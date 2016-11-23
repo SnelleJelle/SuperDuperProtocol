@@ -30,6 +30,7 @@ void loop() {
 
         if (c == '\n' && !finishedReadingUrl) {
             finishedReadingUrl = true;
+            requestUrl = requestUrl.substring(4, requestUrl.length() - 10);
             Serial.println("Request for: " + requestUrl);
         }
 

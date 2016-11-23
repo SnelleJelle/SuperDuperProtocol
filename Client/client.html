@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!--jQuery-->
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <!--<link rel="stylesheet" href="https://bootswatch.com/slate/bootstrap.min.css">-->
+
+    <style>
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #a2e7a4;
+            color: white;
+        }
+
+        .panel-body button.button-up {
+            display: block;
+            margin: 0 0 3px 90px;
+        }
+
+        .driving-controls{
+            width: 300px;
+            margin: 0 auto;
+            align-content: center;
+        }
+
+        .panel-info {
+            margin: 5px;
+        }
+
+    </style>
+
+    <title>IOT Jelle Criel</title>
+</head>
+<body>
+
+<!--http://www.w3schools.com/bootstrap/bootstrap_modal.asp-->
+
+<!--http://www.w3schools.com/bootstrap/bootstrap_popover.asp-->
+
+<div class="container col-md-12">
+
+    <div class="jumbotron">
+        <h1><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Arduino_Logo.svg/1280px-Arduino_Logo.svg.png" height="100"/> IOT Jelle Criel</h1>
+        <p>Robot graphical control panel</p>
+    </div>
+
+    <div class="row col-md-3">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                Driving controls
+            </div>
+            <div class="panel-body">
+                <div class="driving-controls">
+
+                    <button type="button" class="button-up">
+                        <span class="glyphicon glyphicon-arrow-up"></span>
+                    </button>
+
+                    <button type="button">
+                        <span class="glyphicon glyphicon-arrow-left"></span>
+                    </button>
+
+                    <button type="button">
+                        <span class="glyphicon glyphicon-arrow-down"></span>
+                    </button>
+
+                    <button type="button">
+                        <span class="glyphicon glyphicon-arrow-right"></span>
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row col-md-3">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                Connected devices
+            </div>
+            <div class="panel-body">
+                <div class="connected-devices">
+                    <ul class="list-group">
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+    <script>
+$(document).ready(function() {
+    console.log("ready!");
+
+    populate_connected_devices();
+
+    var li = build_connected_device_li(5, "led", {state: 1});
+
+    $('.connected-devices > .list-group').append(li);
+});
+
+function populate_connected_devices() {
+    $.ajax({
+        url: "http://localhost:8080/list",
+        success: function (data) {
+            var devices = JSON.parse(data);
+            console.log(devices.parts);
+        },
+        error : function (error) {
+            console.log("error");
+            console.log(error);
+        }
+    });
+}
+
+function build_connected_device_li(id, type, extra) {
+    var result = '<li class="list-group-item"><span class="label label-info">' + id + '</span> ' + type;
+    if (extra) {
+        var key = Object.keys(extra)[0];
+        result += '<span class="badge">' + key + ': ' + extra[key] + '</span>'
+    }
+    result += '</li>';
+    return result;
+}
+    </script>
+</body>
+</html>

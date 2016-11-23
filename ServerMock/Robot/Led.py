@@ -17,5 +17,6 @@ class Led(Part):
         return self.__on == True
 
     def as_json(self):
-        base = super().as_json(end=",\n\t")
-        return base + "{0}: {1} }}\n\n".format("state", int(self.__on))
+        base = super().as_json()
+        base["state"] = int(self.__on)
+        return base

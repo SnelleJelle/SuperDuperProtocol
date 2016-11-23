@@ -1,3 +1,4 @@
+import json
 from DistanceSensor import DistanceSensor
 from Led import Led
 from Part import Part
@@ -24,14 +25,12 @@ class Robot:
 
     def get_parts(self) -> str:
 
-        parts_string = "{ parts: [\n"
+        parts = {"parts": []}
 
         for part in self.__parts:
-            parts_string += part.as_json()
+            parts["parts"].append(part.as_json())
 
-        parts_string += "]}"
-
-        return parts_string
+        return json.dumps(parts)
 
     def do_with_part(self, id, type, action):
         id = int(id)

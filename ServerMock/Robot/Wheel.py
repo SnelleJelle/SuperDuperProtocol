@@ -25,5 +25,6 @@ class Wheel(Part):
         return self.__direction
 
     def as_json(self):
-        base = super().as_json(end=",\n\t")
-        return base + "{0}: {1} }}\n\n".format("direction", self.__direction)
+        base = super().as_json()
+        base["direction"] = self.__direction
+        return base

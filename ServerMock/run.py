@@ -1,6 +1,8 @@
 # https://github.com/SnelleJelle/SuperDuperProtocol/wiki/Protocol-specifcations
 
 import flask
+# https://pypi.python.org/pypi/Flask-Cors
+from flask_cors import CORS, cross_origin
 from termcolor import colored
 
 from ServerMock.Robot import Robot
@@ -9,6 +11,7 @@ robot = Robot.Robot()
 print(robot.get_parts())
 
 app = flask.Flask(__name__)
+CORS(app)
 
 
 @app.route("/")

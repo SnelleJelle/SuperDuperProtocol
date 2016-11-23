@@ -69,4 +69,8 @@ class Robot:
             return Robot.message_ok
 
     def distance_sensor_read(self, sensor_id):
-        return self.do_with_part(sensor_id, Part.type_distance_sensor, lambda part: part.get_distance_in_cm())
+        sensor_id = int(sensor_id)
+        for part in self.__parts:
+            if part.get_type() == Part.type_distance_sensor and part.get_id() == sensor_id:
+                return str(part.get_distance_in_cm())
+        return Robot.message_error

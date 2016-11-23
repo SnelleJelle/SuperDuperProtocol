@@ -1,4 +1,5 @@
 import json
+
 from DistanceSensor import DistanceSensor
 from Led import Led
 from Part import Part
@@ -18,8 +19,8 @@ class Robot:
 
         self.__distance_sensor = DistanceSensor(5)
 
-        self.__parts = {self.__left_led, self.__right_led, self.__left_wheel, self.__right_wheel,
-                        self.__distance_sensor}
+        self.__parts = [self.__left_led, self.__right_led, self.__left_wheel, self.__right_wheel,
+                        self.__distance_sensor]
 
         self.__connected_client = "no client connected yet :("
 
@@ -30,7 +31,7 @@ class Robot:
         for part in self.__parts:
             parts["parts"].append(part.as_json())
 
-        return json.dumps(parts, indent=4)
+        return json.dumps(parts, indent=4, sort_keys=True)
 
     def do_with_part(self, id, type, action):
         id = int(id)

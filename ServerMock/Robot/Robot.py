@@ -37,7 +37,7 @@ class Robot:
         id = int(id)
         for part in self.__parts:
             if part.get_type() == type and part.get_id() == id:
-                action()
+                action(part)
                 success = self.message_success.copy()
                 success["device"] = part.as_json()
                 return json.dumps(success, indent=4)

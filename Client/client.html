@@ -16,8 +16,6 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
-    <!--<link rel="stylesheet" href="https://bootswatch.com/slate/bootstrap.min.css">-->
-
     <style>
         button {
             background-color: #4CAF50;
@@ -67,6 +65,19 @@
             display: inline;
         }
 
+        .distance_value {
+            background-color: #1D7F76;
+            border-radius: 6px;
+            padding: 5px;
+            margin-left: 10px;
+        }
+
+        .sensor-controls > a {
+            padding-left: 4px;
+            margin: 5px;
+            width: 125px;
+        }
+
     </style>
 
     <title>IOT Jelle Criel</title>
@@ -82,7 +93,6 @@
     <div class="jumbotron">
         <h1><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Arduino_Logo.svg/1280px-Arduino_Logo.svg.png" height="100"/> IOT Jelle Criel</h1>
         <p>Robot graphical control panel</p>
-        <div class="panic">panic</div>
     </div>
 
     <div class="row col-md-3">
@@ -144,19 +154,31 @@
         </div>
     </div>
 
+    <div class="row col-md-3">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                distance sensor controls
+            </div>
+            <div class="panel-body">
+                <div class="sensor-controls">
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script>
-var host = "http://localhost:8080";
+let host = "http://localhost:8080";
 
-var led_src_on = "http://www.clker.com/cliparts/v/C/V/N/w/e/led-red-control-hi.png";
-var led_src_off = "http://www.downloadclipart.net/large/18483-led-red-off-design.png";
+let led_src_on = "http://www.clker.com/cliparts/v/C/V/N/w/e/led-red-control-hi.png";
+let led_src_off = "http://www.downloadclipart.net/large/18483-led-red-off-design.png";
 
-var connected_devices = [];
-var left_wheels = [];
-var right_wheels = [];
-var leds = [];
-var distance_sensors = [];
+let connected_devices = [];
+let left_wheels = [];
+let right_wheels = [];
+let leds = [];
+let distance_sensors = [];
 
 $(document).ready(function() {
     $('.connected-devices > .list-group').html("");
@@ -170,9 +192,20 @@ function load_leds() {
     $led_controls.html("");
     leds.forEach(function (led) {
         var led_state = led.extras.find(e => e).state;
-        var led_img_src = led_state == 1 ? led_src_on : led_src_off ;
+        var led_img_src = led_state == 1 ? led_src_on : led_src_off;
         var led_html = '<div class="led"><span class="badge">' + led.id + '</span><img id="led_' + led.id + '" width="75" src="' + led_img_src + '" onclick="led_onclick(this.id)"></div>';
         $led_controls.append(led_html);
+    })
+}
+
+function load_sensors() {
+    var $sensor_controls = $(".sensor-controls");
+
+    $sensor_controls.html("");
+    distance_sensors.forEach(function (sensor) {
+        var distance = sensor.extras.find(e => e).distance;
+        var sensor_html = '<a id="sensor_' +sensor.id + '" class="btn btn-info btn-lg" onclick="refresh_sensor(this.id);"><span class="badge">' + sensor.id + '</span> <span class="distance_value">' + distance + '</span> <span class="glyphicon glyphicon-refresh"></span></a>';
+        $sensor_controls.append(sensor_html);
     })
 }
 
@@ -187,6 +220,7 @@ function populate_connected_devices() {
             });
 
             load_leds();
+            load_sensors();
         },
         error : function (error) {
             console.log(error);
@@ -228,16 +262,21 @@ function sendCommand(command) {
     var request = host + command;
     console.log("requesting: " + request);
 
+    var returnResult;
     $.ajax({
         url: request,
         dataType: "json",
+        async: false,
         success: function (result) {
+            returnResult = result;
             update_overview(result.device);
         },
         error : function (error) {
             console.log(error);
         }
     });
+
+    return returnResult;
 }
 
 function update_overview(newpart) {
@@ -329,6 +368,16 @@ function led_onclick(clicked_id) {
     var id = clicked_id.split("_").pop();
 
     sendCommand("/led/toggle/" + id);
+}
+
+function refresh_sensor(clicked_id) {
+    var id = clicked_id.split("_").pop();
+
+    var sensor = sendCommand("/distance_sensor/read/" + id).device;
+
+    var distance = sensor.extras.find(e => e).distance;
+
+    $("#sensor_" + id + " > .distance_value").html(distance);
 }
 
 </script>

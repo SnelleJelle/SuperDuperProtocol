@@ -42,14 +42,29 @@
             margin: 0 0 3px 90px;
         }
 
+        .panel-body button.button-panic {
+            background-color: #d9534f;
+            margin: 0 0 3px 90px;
+            width: 80px;
+            padding: 15px 0;
+        }
+
+        button.button-panic:hover {
+            background-color: #e72f3a;
+        }
+
         .driving-controls{
             width: 300px;
             margin: 0 auto;
-            align-content: center;
         }
 
         .panel-info {
             margin: 5px;
+        }
+
+        .led {
+            padding: 5px;
+            display: inline;
         }
 
     </style>
@@ -67,35 +82,7 @@
     <div class="jumbotron">
         <h1><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Arduino_Logo.svg/1280px-Arduino_Logo.svg.png" height="100"/> IOT Jelle Criel</h1>
         <p>Robot graphical control panel</p>
-    </div>
-
-    <div class="row col-md-3">
-        <div class="panel panel-info">
-            <div class="panel-heading">
-                Driving controls
-            </div>
-            <div class="panel-body">
-                <div class="driving-controls">
-
-                    <button type="button" class="button-up">
-                        <span class="glyphicon glyphicon-arrow-up"></span>
-                    </button>
-
-                    <button type="button">
-                        <span class="glyphicon glyphicon-arrow-left"></span>
-                    </button>
-
-                    <button type="button">
-                        <span class="glyphicon glyphicon-arrow-down"></span>
-                    </button>
-
-                    <button type="button">
-                        <span class="glyphicon glyphicon-arrow-right"></span>
-                    </button>
-
-                </div>
-            </div>
-        </div>
+        <div class="panic">panic</div>
     </div>
 
     <div class="row col-md-3">
@@ -112,43 +99,238 @@
         </div>
     </div>
 
+    <div class="row col-md-3">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                Driving controls
+            </div>
+            <div class="panel-body">
+                <div class="driving-controls">
+
+                    <button type="button" class="button-up" onmousedown="button_press_up()" onmouseup="button_leave_up()">
+                        <span class="glyphicon glyphicon-arrow-up"></span>
+                    </button>
+
+                    <button type="button" onmousedown="button_press_left()"  onmouseup="button_leave_left()">
+                        <span class="glyphicon glyphicon-arrow-left"></span>
+                    </button>
+
+                    <button type="button" onmousedown="button_press_down()"  onmouseup="button_leave_down()">
+                        <span class="glyphicon glyphicon-arrow-down"></span>
+                    </button>
+
+                    <button type="button" onmousedown="button_press_right()"  onmouseup="button_leave_right()">
+                        <span class="glyphicon glyphicon-arrow-right"></span>
+                    </button>
+
+                    <button type="button" class="button-panic" onclick="button_press_stop()">
+                        STOP
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row col-md-3">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                LED controls
+            </div>
+            <div class="panel-body">
+                <div class="led-controls">
+                </div>
+            </div>
+        </div>
+    </div>
 
 </div>
 
-    <script>
+<script>
+var host = "http://localhost:8080";
+
+var led_src_on = "http://www.clker.com/cliparts/v/C/V/N/w/e/led-red-control-hi.png";
+var led_src_off = "http://www.downloadclipart.net/large/18483-led-red-off-design.png";
+
+var connected_devices = [];
+var left_wheels = [];
+var right_wheels = [];
+var leds = [];
+var distance_sensors = [];
+
 $(document).ready(function() {
-    console.log("ready!");
-
+    $('.connected-devices > .list-group').html("");
     populate_connected_devices();
-
-    var li = build_connected_device_li(5, "led", {state: 1});
-
-    $('.connected-devices > .list-group').append(li);
 });
+
+function load_leds() {
+
+    var $led_controls = $(".led-controls");
+
+    $led_controls.html("");
+    leds.forEach(function (led) {
+        var led_state = led.extras.find(e => e).state;
+        var led_img_src = led_state == 1 ? led_src_on : led_src_off ;
+        var led_html = '<div class="led"><span class="badge">' + led.id + '</span><img id="led_' + led.id + '" width="75" src="' + led_img_src + '" onclick="led_onclick(this.id)"></div>';
+        $led_controls.append(led_html);
+    })
+}
 
 function populate_connected_devices() {
     $.ajax({
         url: "http://localhost:8080/list",
-        success: function (data) {
-            var devices = JSON.parse(data);
-            console.log(devices.parts);
+        success: function (result) {
+            connected_devices = JSON.parse(result).parts;
+            connected_devices.forEach(function (part) {
+                add_part_to_collection(part);
+                add_part_to_overview(part);
+            });
+
+            load_leds();
         },
         error : function (error) {
-            console.log("error");
             console.log(error);
         }
     });
 }
 
-function build_connected_device_li(id, type, extra) {
-    var result = '<li class="list-group-item"><span class="label label-info">' + id + '</span> ' + type;
-    if (extra) {
-        var key = Object.keys(extra)[0];
-        result += '<span class="badge">' + key + ': ' + extra[key] + '</span>'
+function add_part_to_overview(part) {
+    var li = '<li class="list-group-item" id="device_' + part.id + '"><span class="label label-info">' + part.id + '</span> ' + part.type;
+
+    if (part.extras) {
+        part.extras.forEach(function (extra) {
+            var key = Object.keys(extra)[0];
+            var value = extra[key];
+            li += '<span class="badge">' + key + ': ' + value + '</span>'
+        });
     }
-    result += '</li>';
-    return result;
+    li += '</li>';
+    $('.connected-devices > .list-group').append(li);
 }
-    </script>
+
+function add_part_to_collection(part) {
+
+    if (part.type == "wheel") {
+        var position = part.extras.find(e => e.position).position;
+        if (position == "left") {
+            left_wheels.push(part);
+        } else if (position == "right") {
+            right_wheels.push(part);
+        }
+    } else if (part.type == "led") {
+        leds.push(part);
+    } else if (part.type == "distance_sensor") {
+        distance_sensors.push(part);
+    }
+}
+
+function sendCommand(command) {
+    var request = host + command;
+    console.log("requesting: " + request);
+
+    $.ajax({
+        url: request,
+        dataType: "json",
+        success: function (result) {
+            update_overview(result.device);
+        },
+        error : function (error) {
+            console.log(error);
+        }
+    });
+}
+
+function update_overview(newpart) {
+    var device_id = "#device_" + newpart.id;
+    $(device_id + ' > .badge').remove();
+
+    var badgeHtml = "";
+    newpart.extras.forEach(function (extra) {
+        var key = Object.keys(extra)[0];
+        var value = extra[key];
+        badgeHtml += '<span class="badge">' + key + ': ' + value + '</span>';
+    });
+
+    $(device_id).append(badgeHtml);
+
+    if (newpart.type == "led") {
+        var led_state = newpart.extras.find(e => e).state;
+        var led_img_src = led_state == 1 ? led_src_on : led_src_off ;
+        $("#led_" + newpart.id).attr("src", led_img_src);
+    }
+}
+
+function button_press_up() {
+    left_wheels.forEach(function (wheel) {
+        sendCommand("/wheel/forward/" + wheel.id);
+    });
+    right_wheels.forEach(function (wheel) {
+        sendCommand("/wheel/forward/" + wheel.id);
+    })
+}
+function button_leave_up() {
+    left_wheels.forEach(function (wheel) {
+        sendCommand("/wheel/stop/" + wheel.id);
+    });
+    right_wheels.forEach(function (wheel) {
+        sendCommand("/wheel/stop/" + wheel.id);
+    })
+}
+
+function button_press_down() {
+    left_wheels.forEach(function (wheel) {
+        sendCommand("/wheel/backward/" + wheel.id);
+    });
+    right_wheels.forEach(function (wheel) {
+        sendCommand("/wheel/backward/" + wheel.id);
+    })
+}
+function button_leave_down() {
+    left_wheels.forEach(function (wheel) {
+        sendCommand("/wheel/stop/" + wheel.id);
+    });
+    right_wheels.forEach(function (wheel) {
+        sendCommand("/wheel/stop/" + wheel.id);
+    })
+}
+
+function button_press_left() {
+    left_wheels.forEach(function (wheel) {
+        sendCommand("/wheel/forward/" + wheel.id);
+    });
+}
+function button_leave_left() {
+    left_wheels.forEach(function (wheel) {
+        sendCommand("/wheel/stop/" + wheel.id);
+    });
+}
+
+function button_press_right() {
+    right_wheels.forEach(function (wheel) {
+        sendCommand("/wheel/forward/" + wheel.id);
+    })
+}
+function button_leave_right() {
+    right_wheels.forEach(function (wheel) {
+        sendCommand("/wheel/stop/" + wheel.id);
+    })
+}
+
+function button_press_stop() {
+    left_wheels.forEach(function (wheel) {
+        sendCommand("/wheel/stop/" + wheel.id);
+    });
+    right_wheels.forEach(function (wheel) {
+        sendCommand("/wheel/stop/" + wheel.id);
+    })
+}
+
+function led_onclick(clicked_id) {
+    var id = clicked_id.split("_").pop();
+
+    sendCommand("/led/toggle/" + id);
+}
+
+</script>
 </body>
 </html>

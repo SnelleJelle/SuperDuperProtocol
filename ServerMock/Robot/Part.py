@@ -15,7 +15,8 @@ class Part:
         return self.__part_id
 
     def as_json(self):
-        return {str(self.__part_id): self.__part_type}
+        return {"id": str(self.__part_id),
+                "type": self.__part_type}
 
     def __str__(self):
         return self.as_json()

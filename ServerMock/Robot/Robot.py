@@ -7,15 +7,15 @@ from Wheel import Wheel
 
 
 class Robot:
-    message_ok = "ok"
-    message_error = "error"
+    message_success = {"command": "success", "device": []}
+    message_error = {"command": "error"}
 
     def __init__(self):
         self.__left_led = Led(1)
         self.__right_led = Led(2)
 
-        self.__left_wheel = Wheel(3)
-        self.__right_wheel = Wheel(4)
+        self.__left_wheel = Wheel(3, position=Wheel.position_left)
+        self.__right_wheel = Wheel(4, position=Wheel.position_right)
 
         self.__distance_sensor = DistanceSensor(5)
 
@@ -31,15 +31,17 @@ class Robot:
         for part in self.__parts:
             parts["parts"].append(part.as_json())
 
-        return json.dumps(parts, indent=4, sort_keys=True)
+        return json.dumps(parts, indent=4)
 
     def do_with_part(self, id, type, action):
         id = int(id)
         for part in self.__parts:
             if part.get_type() == type and part.get_id() == id:
-                action(part)
-                return Robot.message_ok
-        return Robot.message_error
+                action()
+                success = self.message_success.copy()
+                success["device"] = part.as_json()
+                return json.dumps(success, indent=4)
+        return json.dumps(self.message_error, indent=4)
 
     def led_on(self, led_id: int):
         return self.do_with_part(led_id, Part.type_led, lambda part: part.turn_on())

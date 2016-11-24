@@ -18,5 +18,5 @@ class Led(Part):
 
     def as_json(self):
         base = super().as_json()
-        base["state"] = int(self.__on)
+        base["extras"] = [{"state": int(self.__on)}]
         return base

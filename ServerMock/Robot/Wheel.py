@@ -7,10 +7,14 @@ class Wheel(Part):
     direction_backward = "backward"
     direction_stop = "stop"
 
-    def __init__(self, part_id=-1, part_type=Part.type_wheel):
+    position_left = "left"
+    position_right = "right"
+
+    def __init__(self, part_id=-1, part_type=Part.type_wheel, position=None):
         super().__init__(part_id, part_type)
 
         self.__direction = Wheel.direction_stop
+        self.__position = position;
 
     def drive_forward(self):
         self.__direction = Wheel.direction_forward
@@ -26,5 +30,8 @@ class Wheel(Part):
 
     def as_json(self):
         base = super().as_json()
-        base["direction"] = self.__direction
+        base["extras"] = [
+            {"direction":  self.__direction},
+            {"position": self.__position}
+        ]
         return base

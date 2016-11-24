@@ -38,38 +38,38 @@ This protocol uses HTTP which in turn uses TCP/IP for connection handling and re
 
 The client device (laptop with HTTP-client) sends HTTP-requests to the server (Intel Galileo).<br>
 Requests are of the format: `http://host:port/command/argument(s)` and are specified below.<br>
-The server replies with {} default or a JSON-object when more info is required.
+The server replies with a JSON object with a success status and all part info.
 
 Possible values for `command` and `arguments` are specified below, grouped per target component.
 
 ### List connected devices
-Command | Arguments | Description                     | Reply body
-------- | --------- | ------------------------------- | --------------------------------------------------------------------------------------
-list    |           | Lists the connected devices by name and their associated ID's  | The device info is returned in JSON format.
+Command | Arguments | Description                     
+------- | --------- | -------------------------------
+list    |           | Lists the connected devices by name and their associated ID's  
 
 ### Led controls
-Command | Arguments | Description                     | Reply body
-------- | --------- | ------------------------------- | --------------------------------------------------------------------------------------
-led     | /on/{id}  | Turns the led with id {id} on.  | "ok" when action is executed successfully. "error" when led with id {id} is not found.
-led     | /off/{id} | Turns the led with id {id} off. | "ok" when action is executed successfully. "error" when led with id {id} is not found.
+Command | Arguments | Description                     
+------- | --------- | -------------------------------
+led     | /on/{id}  | Turns the led with id {id} on.  
+led     | /off/{id} | Turns the led with id {id} off.
 
 ### Wheel (driving) controls
 
-Command | Arguments | Description                       | Reply body
-------- | --------- | --------------------------------- | ----------------------------------------------------------------------------------------
-wheel   | /forward/{id}  | Turns the wheel with id {id} forwards.  | "ok" when action is executed successfully. "error" when wheel with id {id} is not found.
-wheel   | /backward/{id}  | Turns the wheel with id {id} backwards.  | "ok" when action is executed successfully. "error" when wheel with id {id} is not found.
-wheel   | /stop/{id} | Turns the wheel with id {id} off. | "ok" when action is executed successfully. "error" when wheel with id {id} is not found.
-wheel   | /fullstop | Stops all wheels | "ok" when action is executed successfully. "error" when no wheels are found.
+Command | Arguments | Description                       
+------- | --------- | ---------------------------------
+wheel   | /forward/{id}  | Turns the wheel with id {id} forwards.  
+wheel   | /backward/{id}  | Turns the wheel with id {id} backwards.  
+wheel   | /stop/{id} | Turns the wheel with id {id} off.
+wheel   | /fullstop | Stops all wheels
 
 ### Distance sensor controls
 
-Command        | Arguments | Description                       | Reply body
--------------- | --------- | --------------------------------- | ----------------
-distance_sensor | /read/{id}  |Reads the distance from distance sensor with id {id}  | {distance} when action is executed successfully. "error" when distance sensor with id {id} is not found.
+Command        | Arguments | Description                       
+-------------- | --------- | ---------------------------------
+distance_sensor | /read/{id}  |Reads the distance from distance sensor with id {id}  
 
 ### Connection controls
 
-Command           | Arguments | Description | Reply body
------------------ | --------- | ----------- | ----------
-connect           | /to/{ipv4} | Initialises a connection to the device with the given address {ipv4} in IPv4 notation | "connected" when sucessfully connected, nothing when connection failed.
+Command           | Arguments | Description
+----------------- | --------- | -----------
+connect           |  | Initialises a connection to the device with the given address in IPv4 notation

@@ -76,19 +76,38 @@
             padding-left: 4px;
             margin: 5px;
             width: 125px;
+            border-radius: 0px;
         }
 
     </style>
 
     <title>IOT Jelle Criel</title>
 </head>
-<body>
+<body class="modal-open">
 
 <!--http://www.w3schools.com/bootstrap/bootstrap_modal.asp-->
 
 <!--http://www.w3schools.com/bootstrap/bootstrap_popover.asp-->
 
 <div class="container col-md-12">
+
+    <div class="modal fade" id="connect_modal" role="dialog">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <form>
+                    <div class="modal-body">
+                        <div class="input-group">
+                            <span class="input-group-addon">Address</span>
+                            <input id="connect_address" type="text" class="form-control" name="msg" placeholder="Connect to address">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal" onclick="connect();">Connect</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <div class="jumbotron">
         <h1><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Arduino_Logo.svg/1280px-Arduino_Logo.svg.png" height="100"/> IOT Jelle Criel</h1>
@@ -169,7 +188,7 @@
 </div>
 
 <script>
-let host = "http://localhost:8080";
+let host = "";
 
 let led_src_on = "http://www.clker.com/cliparts/v/C/V/N/w/e/led-red-control-hi.png";
 let led_src_off = "http://www.downloadclipart.net/large/18483-led-red-off-design.png";
@@ -181,9 +200,16 @@ let leds = [];
 let distance_sensors = [];
 
 $(document).ready(function() {
+    $("#connect_modal").modal();
+    $("#connect_address").val(window.location.host);
+});
+
+function connect() {
+    host = window.location.protocol + "//" +  $("#connect_address").val();
+
     $('.connected-devices > .list-group').html("");
     populate_connected_devices();
-});
+}
 
 function load_leds() {
 
@@ -211,7 +237,7 @@ function load_sensors() {
 
 function populate_connected_devices() {
     $.ajax({
-        url: "http://localhost:8080/list",
+        url: host + "/list",
         success: function (result) {
             connected_devices = JSON.parse(result).parts;
             connected_devices.forEach(function (part) {
@@ -260,7 +286,7 @@ function add_part_to_collection(part) {
 
 function sendCommand(command) {
     var request = host + command;
-    console.log("requesting: " + request);
+    //console.log("requesting: " + request);
 
     var returnResult;
     $.ajax({

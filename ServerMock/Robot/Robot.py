@@ -77,7 +77,6 @@ class Robot:
         sensor_id = int(sensor_id)
         for part in self.__parts:
             if part.get_type() == Part.type_distance_sensor and part.get_id() == sensor_id:
-                return str(part.get_distance_in_cm())
                 success = self.message_success.copy()
                 success["device"] = part.as_json()
                 return json.dumps(success, indent=4)

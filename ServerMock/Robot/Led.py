@@ -13,6 +13,9 @@ class Led(Part):
     def turn_off(self):
         self.__on = False
 
+    def toggle(self):
+        self.__on = not self.__on
+
     def is_on(self):
         return self.__on == True
 

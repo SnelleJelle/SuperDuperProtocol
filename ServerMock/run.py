@@ -33,6 +33,10 @@ def led_on(led_id):
 def led_off(led_id):
     return robot.led_off(led_id)
 
+@app.route("/led/toggle/<led_id>")
+def led_toggle(led_id):
+    return robot.led_toggle(led_id)
+
 
 @app.route("/wheel/forward/<wheel_id>")
 def wheel_forward(wheel_id):

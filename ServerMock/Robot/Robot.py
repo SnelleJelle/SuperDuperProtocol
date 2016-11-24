@@ -49,6 +49,9 @@ class Robot:
     def led_off(self, led_id):
         return self.do_with_part(led_id, Part.type_led, lambda part: part.turn_off())
 
+    def led_toggle(self, led_id):
+        return self.do_with_part(led_id, Part.type_led, lambda part: part.toggle())
+
     def wheel_forward(self, wheel_id):
         return self.do_with_part(wheel_id, Part.type_wheel, lambda part: part.drive_forward())
 
@@ -66,13 +69,16 @@ class Robot:
                 no_wheels_found = False
 
         if no_wheels_found:
-            return Robot.message_error
+            return self.message_error
         else:
-            return Robot.message_ok
+            return self.message_success
 
     def distance_sensor_read(self, sensor_id):
         sensor_id = int(sensor_id)
         for part in self.__parts:
             if part.get_type() == Part.type_distance_sensor and part.get_id() == sensor_id:
                 return str(part.get_distance_in_cm())
+                success = self.message_success.copy()
+                success["device"] = part.as_json()
+                return json.dumps(success, indent=4)
         return Robot.message_error

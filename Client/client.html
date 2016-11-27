@@ -18,6 +18,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.5.1/bootstrap-slider.min.js"></script>
 
     <style>
+
         button {
             background-color: rgb(91, 192, 222);
             border: none;
@@ -37,7 +38,6 @@
 
         button:hover {
             background-color: #147CCC;
-            color: white;
         }
 
         .panel-body button.button-up {
@@ -94,6 +94,10 @@
             display: none;
         }
 
+        #distance_setting_slider {
+            margin: 25px 10px 10px;
+        }
+
         #distance_setting_slider .slider-handle{
             background: #FF6140;
         }
@@ -101,15 +105,6 @@
         #distance_setting_slider .slider-selection {
             background: rgb(91, 192, 222);
         }
-
-        #distance_setting {
-            margin: 20px 10px 10px;
-        }
-
-        #invis-padding {
-            margin: 20px;
-        }
-
 
     </style>
 
@@ -238,6 +233,9 @@
 let host = "";
 let connect_mode = "";
 
+let mode_automatic = "automatic";
+let mode_manual = "manual";
+
 let led_src_on = "http://www.clker.com/cliparts/v/C/V/N/w/e/led-red-control-hi.png";
 let led_src_off = "http://www.downloadclipart.net/large/18483-led-red-off-design.png";
 
@@ -246,6 +244,8 @@ let left_wheels = [];
 let right_wheels = [];
 let leds = [];
 let distance_sensors = [];
+
+let check_loop;
 
 $(document).ready(function() {
     $("#connect_modal").modal();
@@ -258,7 +258,7 @@ function connect(mode) {
     host = window.location.protocol + "//" +  $("#connect_address").val();
     populate_connected_devices();
 
-    assign_driving_events();
+    assign_driving_events(connect_mode);
 }
 
 function load_leds() {
@@ -304,27 +304,6 @@ function load_driving_settings() {
     });
 }
 
-function assign_driving_events() {
-    var btn_left = $(".button-left");
-    btn_left.mousedown(button_press_left);
-    btn_left.mouseup(button_leave_left);
-
-    var btn_right = $(".button-right");
-    btn_right.mousedown(button_press_right);
-    btn_left.mouseup(button_leave_left);
-
-    var btn_up = $(".button-up");
-    btn_up.mousedown(button_press_up);
-    btn_up.mouseup(button_leave_up);
-
-    var btn_down = $(".button-down");
-    btn_down.mousedown(button_press_down);
-    btn_down.mouseup(button_leave_down);
-
-    $(".button-stop").mousedown(button_press_stop);
-
-}
-
 function populate_connected_devices() {
     $('.connected-devices > .list-group').html("");
 
@@ -337,10 +316,10 @@ function populate_connected_devices() {
                 add_part_to_overview(part);
             });
 
-            if (connect_mode == "manual") {
+            if (connect_mode == mode_manual) {
                 load_leds();
                 load_sensors();
-            } else if (connect_mode = "automatic") {
+            } else if (connect_mode = mode_automatic) {
                 load_driving_settings();
             }
         },
@@ -348,6 +327,54 @@ function populate_connected_devices() {
             console.log(error);
         }
     });
+}
+
+function assign_driving_events(mode) {
+
+    if (mode == mode_manual) {
+        var btn_left = $(".button-left");
+        btn_left.mousedown(button_press_left);
+        btn_left.mouseup(button_leave_left);
+
+        var btn_right = $(".button-right");
+        btn_right.mousedown(button_press_right);
+        btn_left.mouseup(button_leave_left);
+
+        var btn_up = $(".button-up");
+        btn_up.mousedown(button_press_up);
+        btn_up.mouseup(button_leave_up);
+
+        var btn_down = $(".button-down");
+        btn_down.mousedown(button_press_down);
+        btn_down.mouseup(button_leave_down);
+
+        $(".button-stop").mousedown(button_press_stop);
+    } else if (mode == mode_automatic) {
+        var upDownLeftRight = $(".driving-controls > button:not(.button-stop)");
+        upDownLeftRight.mousedown(function () {
+            console.log("driving");
+            enable_distance_check();
+        });
+        upDownLeftRight.mouseup(function () {
+            console.log("stopped driving");
+            disable_distance_check();
+        });
+    }
+}
+
+function enable_distance_check() {
+    check_loop =  setInterval(function () {
+        console.log("checking")
+    },50);
+}
+
+function disable_distance_check() {
+    clearInterval(check_loop);
+    console.log("stopped checking");
+}
+
+function distance_check() {
+    console.log("checking")
 }
 
 function add_part_to_overview(part) {

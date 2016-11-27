@@ -313,7 +313,6 @@ function load_driving_settings() {
 
     slider.on("slide", function(slideEvt) {
         break_distance = slideEvt.value;
-        console.log("breaking at: " + break_distance);
     });
 }
 
@@ -421,7 +420,6 @@ function distance_check() {
 
 function on_distance_polled(distance) {
     if (distance <= break_distance) {
-        console.log(distance);
         button_press_stop();
         disable_distance_check();
     }

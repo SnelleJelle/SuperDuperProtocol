@@ -19,6 +19,10 @@
 
     <style>
 
+        html {
+            min-width: 450px;
+        }
+
         button {
             background-color: rgb(91, 192, 222);
             border: none;
@@ -104,6 +108,12 @@
 
         #distance_setting_slider .slider-selection {
             background: rgb(91, 192, 222);
+        }
+
+        .driving-settings > span {
+            padding-top: 25px;
+            display: block;
+            float: left;
         }
 
     </style>
@@ -217,6 +227,7 @@
             <div class="panel-body">
                 <div class="driving-settings">
                     <div id="invis-padding"></div>
+                    <span>Automatic break at: </span>
                     <input id="distance_setting" data-slider-id='distance_setting_slider' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="10" data-slider-value="10"/>
                 </div>
             </div>
@@ -245,7 +256,8 @@ let right_wheels = [];
 let leds = [];
 let distance_sensors = [];
 
-let check_loop;
+let driving = false;
+let break_distance = 10;
 
 $(document).ready(function() {
     $("#connect_modal").modal();
@@ -300,7 +312,8 @@ function load_driving_settings() {
     });
 
     slider.on("slide", function(slideEvt) {
-        console.log(slideEvt.value);
+        break_distance = slideEvt.value;
+        console.log("breaking at: " + break_distance);
     });
 }
 
@@ -331,7 +344,7 @@ function populate_connected_devices() {
 
 function assign_driving_events(mode) {
 
-    if (mode == mode_manual) {
+
         var btn_left = $(".button-left");
         btn_left.mousedown(button_press_left);
         btn_left.mouseup(button_leave_left);
@@ -349,32 +362,69 @@ function assign_driving_events(mode) {
         btn_down.mouseup(button_leave_down);
 
         $(".button-stop").mousedown(button_press_stop);
+    if (mode == mode_manual) {
+        //
     } else if (mode == mode_automatic) {
+        btn_left.mousedown(function () {
+            sendCommand("/led/on/1")
+        });
+        btn_left.mouseup(function () {
+            sendCommand("/led/off/1")
+        });
+
+        btn_right.mousedown(function () {
+            sendCommand("/led/on/2")
+        });
+        btn_right.mouseup(function () {
+            sendCommand("/led/off/2")
+        });
+
+        btn_up.mousedown(function () {
+            sendCommand("/led/on/1")
+            sendCommand("/led/on/2")
+        });
+        btn_up.mouseup(function () {
+            sendCommand("/led/off/1")
+            sendCommand("/led/off/2")
+        });
+
         var upDownLeftRight = $(".driving-controls > button:not(.button-stop)");
         upDownLeftRight.mousedown(function () {
-            console.log("driving");
             enable_distance_check();
         });
         upDownLeftRight.mouseup(function () {
-            console.log("stopped driving");
             disable_distance_check();
         });
     }
 }
 
 function enable_distance_check() {
-    check_loop =  setInterval(function () {
-        console.log("checking")
-    },50);
+    driving = true;
+    setTimeout(function () {
+        distance_check();
+        if (driving) {
+            enable_distance_check();
+        }
+    },333);
 }
 
 function disable_distance_check() {
-    clearInterval(check_loop);
-    console.log("stopped checking");
+    driving = false;
 }
 
 function distance_check() {
-    console.log("checking")
+
+    var sensor = sendCommand("/distance_sensor/read/5");
+    var distance = sensor.extras.find(e => e.distance).distance;
+    on_distance_polled(distance);
+}
+
+function on_distance_polled(distance) {
+    if (distance <= break_distance) {
+        console.log(distance);
+        button_press_stop();
+        disable_distance_check();
+    }
 }
 
 function add_part_to_overview(part) {
@@ -411,21 +461,23 @@ function sendCommand(command) {
     var request = host + command;
     //console.log("requesting: " + request);
 
-    var returnResult;
+    var device;
     $.ajax({
         url: request,
         dataType: "json",
         async: false,
         success: function (result) {
-            returnResult = result;
-            update_overview(result.device);
+            device = result.device;
+            if (result.command == "success") {
+                update_overview(result.device);
+            }
         },
         error : function (error) {
-            console.log(error);
+            console.log("error: " + error);
         }
     });
 
-    return returnResult.device;
+    return device;
 }
 
 function update_overview(newpart) {
@@ -446,8 +498,6 @@ function update_overview(newpart) {
         var badge = $('#' + random_badge_id);
         badge.fadeOut(200).fadeIn(200)
     });
-
-
 }
 
 function button_press_up() {

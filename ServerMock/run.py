@@ -53,11 +53,6 @@ def wheel_stop(wheel_id):
     return robot.wheel_stop(wheel_id)
 
 
-@app.route("/wheel/fullstop")
-def wheel_fullstop():
-    return robot.wheel_fullstop()
-
-
 @app.route("/distance_sensor/read/<sensor_id>")
 def distance_sensor_read(sensor_id):
     return robot.distance_sensor_read(sensor_id)

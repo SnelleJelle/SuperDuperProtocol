@@ -52,6 +52,7 @@ Command | Arguments | Description
 ------- | --------- | -------------------------------
 led     | /on/{id}  | Turns the led with id {id} on.  
 led     | /off/{id} | Turns the led with id {id} off.
+led     | /toggle/{id} | Toggles the led with id {id} on or off.
 
 ### Wheel (driving) controls
 
@@ -60,7 +61,6 @@ Command | Arguments | Description
 wheel   | /forward/{id}  | Turns the wheel with id {id} forwards.  
 wheel   | /backward/{id}  | Turns the wheel with id {id} backwards.  
 wheel   | /stop/{id} | Turns the wheel with id {id} off.
-wheel   | /fullstop | Stops all wheels
 
 ### Distance sensor controls
 

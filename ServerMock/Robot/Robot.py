@@ -61,18 +61,6 @@ class Robot:
     def wheel_stop(self, wheel_id):
         return self.do_with_part(wheel_id, Part.type_wheel, lambda part: part.stop())
 
-    def wheel_fullstop(self):
-        no_wheels_found = True
-        for part in self.__parts:
-            if part.get_type() == Part.type_wheel:
-                part.stop()
-                no_wheels_found = False
-
-        if no_wheels_found:
-            return self.message_error
-        else:
-            return self.message_success
-
     def distance_sensor_read(self, sensor_id):
         sensor_id = int(sensor_id)
         for part in self.__parts:

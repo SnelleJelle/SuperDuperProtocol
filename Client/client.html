@@ -261,7 +261,7 @@ let break_distance = 10;
 
 $(document).ready(function() {
     $("#connect_modal").modal();
-    $("#connect_address").val("localhost:8080"); //window.location.host
+    $("#connect_address").val(window.location.host); //window.location.host
 
 });
 
@@ -350,7 +350,7 @@ function assign_driving_events(mode) {
 
         var btn_right = $(".button-right");
         btn_right.mousedown(button_press_right);
-        btn_left.mouseup(button_leave_left);
+        btn_right.mouseup(button_leave_right);
 
         var btn_up = $(".button-up");
         btn_up.mousedown(button_press_up);

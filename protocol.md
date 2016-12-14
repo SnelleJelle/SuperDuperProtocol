@@ -67,9 +67,3 @@ wheel   | /stop/{id} | Turns the wheel with id {id} off.
 Command        | Arguments | Description                       
 -------------- | --------- | ---------------------------------
 distance_sensor | /read/{id}  |Reads the distance from distance sensor with id {id}  
-
-### Connection controls
-
-Command           | Arguments | Description
------------------ | --------- | -----------
-connect           |  | Initialises a connection to the device with the given address in IPv4 notation

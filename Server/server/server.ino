@@ -1,7 +1,6 @@
 #include <Ethernet.h>
 #include <LiquidCrystal_I2C.h>
 #include <SD.h>
-#include <NewPing.h>
 
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 IPAddress ip(169, 254, 255, 254); // use: 169.254.255.254:8080
@@ -11,6 +10,7 @@ LiquidCrystal_I2C lcd(0x3F, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);
 const int chipSelect = 4;
 
 // pins
+//           => I know this is a terrible implementation, but id you give me a good OOP environment I'll give you good code!
 String deviceTypes[] = {"empty", "empty", "button", "distance_sensor_echo", "distance_sensor", "bridge_enable", "led", "led", "wheel", "wheel_reverse", "wheel", "wheel_reverse"}; //type of device with id 5 => deviceTypes[5] = deviceType;
 
 boolean ledStates[] = {false, false, false, false, false, false, false}; // state of led with id 2 => ledStates[2] = true/false
@@ -102,6 +102,8 @@ void send_headers(EthernetClient client) {
     client.println("HTTP/1.1 200 OK");
     client.println("Content-Type: text/html");
     client.println("Connection: close");
+    // necessary for ajax clients from other domains
+    // wether this is a good idea depends on the implementation.
     client.println("Access-Control-Allow-Origin: *");
     client.println();
 }
@@ -199,6 +201,7 @@ void wheel_forward(EthernetClient client, int wheel_id) {
   } else {
        Serial.println("No wheel found with id: " + String(wheel_id));
   }
+  // leds on when the client asks for it.
 }
 
 void wheel_backward(EthernetClient client, int wheel_id) {
@@ -213,6 +216,7 @@ void wheel_backward(EthernetClient client, int wheel_id) {
   } else {
        Serial.println("No wheel found with id: " + String(wheel_id));
   }
+  // leds off when the client asks for it.
 }
 
 void wheel_stop(EthernetClient client, int wheel_id) {
